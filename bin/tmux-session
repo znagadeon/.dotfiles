@@ -1,0 +1,23 @@
+# vim: set ft=zsh :
+
+tmux-session() {
+	local selected name dir
+	SESSION_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/tmux-session/sessions"
+
+	[ -r "$SESSION_FILE" ] || { echo "Cannot read: $SESSION_FILE"; exit 1; }
+
+	selected=$(fzf --prompt="tmux-session > " --layout reverse --height 40% < "$SESSION_FILE")
+
+	name=$(echo $selected | awk '{print $1}')
+	dir=$(echo $selected | awk '{print $2}')
+
+	dir=${~dir}
+	dir=${dir:A}
+
+	if tmux has-session -t $name 2>/dev/null; then
+		tmux attach -t "$name"
+	else
+		tmux new -s "$name" -c "$dir"
+	fi
+}
+
