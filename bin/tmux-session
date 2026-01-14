@@ -13,15 +13,13 @@ tsess() {
 			tsess_remove "$@"
 			;;
 		""|attach)
-			tsess_attach
+			tsess_attach "$@"
 			;;
 		help)
 			tsess_help
 			;;
 		*)
-			echo "Unknown command: $command"
-			tsess_help
-			return 1
+			tsess_attach "$@"
 			;;
 	esac
 }
@@ -58,13 +56,20 @@ tsess_remove() {
 
 tsess_attach() {
 	local selected name dir
+	local command="$1"
 
-	[ -r "$SESSION_FILE" ] || { echo "Cannot read: $SESSION_FILE"; exit 1; }
+	[ -r "$SESSION_FILE" ] || { touch $SESSION_FILE; }
 
-	selected=$(fzf --prompt="tsess > " --layout reverse --height 40% < "$SESSION_FILE")
+	if [[ -z "$command" ]]; then
+		selected=$(fzf --prompt="tsess > " --layout reverse --height 40% < "$SESSION_FILE")
+		name=$(echo $selected | awk '{print $1}')
+	elif [[ "$command" == "attach" ]]; then
+		name="$2"
+	else
+		name="$1"
+	fi	
 
-	name=$(echo $selected | awk '{print $1}')
-	dir=$(echo $selected | awk '{print $2}')
+	dir=$(grep "^$name	" "$SESSION_FILE" | awk '{print $2}')
 
 	if [[ -z "$name" || -z "$dir" ]]; then
 		echo "No session selected"
@@ -86,7 +91,7 @@ tsess_help() {
 	echo "Commands:"
 	echo "  add <name> <dir>	Add a new session"
 	echo "  remove <name>		Remove a session"
-	echo "  attach				Attach to a session"
+	echo "  attach <name>		Attach to a session"
 	echo "  help				Show this help message"
 }
 
