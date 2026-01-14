@@ -1,7 +1,7 @@
 # vim: set ft=zsh :
 
 tsess_dir() {
-	return "${XDG_CONFIG_HOME:-$HOME/.config}/tsess/sessions"
+	echo "${XDG_CONFIG_HOME:-$HOME/.config}/tsess/sessions"
 }
 
 tsess() {
