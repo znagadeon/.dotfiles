@@ -1,6 +1,6 @@
 # vim: set ft=zsh :
 
-local SESSION_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/tmux-session/sessions"
+local SESSION_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/tsess/sessions"
 
 tsess() {
 	local command="$1"
