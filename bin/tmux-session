@@ -95,12 +95,14 @@ tsess_attach() {
 }
 
 tsess_help() {
-	echo "Usage: tsess <command>"
-	echo "Commands:"
-	echo "  add <name> <dir>	Add a new session"
-	echo "  remove <name>		Remove a session"
-	echo "  attach <name>		Attach to a session"
-	echo "  help				Show this help message"
+	{
+		echo "Usage: tsess <command>"
+		echo "Commands:"
+		echo "  add <name> <dir>	Add a new session"
+		echo "  remove <name>	Remove a session"
+		echo "  attach <name>	Attach to a session"
+		echo "  help	Show this help message"
+	} | column -t -s $'\t'
 }
 
 alias ts='tsess'
