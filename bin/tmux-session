@@ -61,7 +61,7 @@ tsess_attach() {
 
 	[ -r "$SESSION_FILE" ] || { echo "Cannot read: $SESSION_FILE"; exit 1; }
 
-	selected=$(fzf --prompt="tmux-session > " --layout reverse --height 40% < "$SESSION_FILE")
+	selected=$(fzf --prompt="tsess > " --layout reverse --height 40% < "$SESSION_FILE")
 
 	name=$(echo $selected | awk '{print $1}')
 	dir=$(echo $selected | awk '{print $2}')
