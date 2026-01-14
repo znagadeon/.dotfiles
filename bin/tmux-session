@@ -1,14 +1,16 @@
 # vim: set ft=zsh :
 
-local SESSION_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/tsess/sessions"
+tsess_dir() {
+	return "${XDG_CONFIG_HOME:-$HOME/.config}/tsess/sessions"
+}
 
 tsess() {
 	local command="$1"
 
 	case $command in
 		init)
-			mkdir -p $(dirname $SESSION_FILE)
-			touch $SESSION_FILE
+			mkdir -p $(dirname $(tsess_dir))
+			touch $(tsess_dir)
 			;;
 		add)
 			tsess_add "$@"
@@ -42,8 +44,8 @@ tsess_add() {
 	dir=${dir:A}
 	dir="~${dir#$HOME}"
 
-	echo "$name	$dir" >> "$SESSION_FILE"
-	echo "Session '$name' added to '$SESSION_FILE'"
+	echo "$name	$dir" >> "$(tsess_dir)"
+	echo "Session '$name' added to '$(tsess_dir)'"
 }
 
 tsess_remove() {
@@ -55,8 +57,8 @@ tsess_remove() {
 		return 1
 	fi
 
-	sed -i '' "/^$name	/d" "$SESSION_FILE"
-	echo "Session '$name' removed from '$SESSION_FILE'"
+	sed -i '' "/^$name	/d" "$(tsess_dir)"
+	echo "Session '$name' removed from '$(tsess_dir)'"
 }
 
 tsess_attach() {
@@ -65,7 +67,7 @@ tsess_attach() {
 
 	if [[ -z "$command" ]]; then
 		selected=$(
-			column -t -s $'\t' "$SESSION_FILE" 2>/dev/null | \
+			column -t -s $'\t' "$(tsess_dir)" 2>/dev/null | \
 			fzf \
 				--prompt="tsess > " \
 				--layout reverse \
@@ -78,7 +80,7 @@ tsess_attach() {
 		name="$1"
 	fi	
 
-	dir=$(grep "^$name	" "$SESSION_FILE" | awk '{print $2}')
+	dir=$(grep "^$name	" "$(tsess_dir)" | awk '{print $2}')
 
 	if [[ -z "$name" || -z "$dir" ]]; then
 		echo "No session selected"
