@@ -6,6 +6,10 @@ tsess() {
 	local command="$1"
 
 	case $command in
+		init)
+			mkdir -p $(dirname $SESSION_FILE)
+			touch $SESSION_FILE
+			;;
 		add)
 			tsess_add "$@"
 			;;
@@ -57,8 +61,6 @@ tsess_remove() {
 tsess_attach() {
 	local selected name dir
 	local command="$1"
-
-	[ -r "$SESSION_FILE" ] || { touch $SESSION_FILE; }
 
 	if [[ -z "$command" ]]; then
 		selected=$(fzf --prompt="tsess > " --layout reverse --height 40% < "$SESSION_FILE")
