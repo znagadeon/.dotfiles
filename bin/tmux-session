@@ -89,3 +89,5 @@ tsess_help() {
 	echo "  attach				Attach to a session"
 	echo "  help				Show this help message"
 }
+
+alias ts='tsess'
