@@ -1,8 +1,63 @@
 # vim: set ft=zsh :
 
-tmux-session() {
+local SESSION_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/tmux-session/sessions"
+
+tsess() {
+	local command="$1"
+
+	case $command in
+		add)
+			tsess_add "$@"
+			;;
+		remove)
+			tsess_remove "$@"
+			;;
+		""|attach)
+			tsess_attach
+			;;
+		help)
+			tsess_help
+			;;
+		*)
+			echo "Unknown command: $command"
+			tsess_help
+			return 1
+			;;
+	esac
+}
+
+tsess_add() {
+	local name="$2"
+	local dir="$3"
+
+	if [[ -z "$name" || -z "$dir" ]]; then
+		echo "Usage: tsess add <name> <dir>"
+		tsess_help
+		return 1
+	fi
+
+	dir=${~dir}
+	dir=${dir:A}
+
+	echo "$name	$dir" >> "$SESSION_FILE"
+	echo "Session '$name' added to '$SESSION_FILE'"
+}
+
+tsess_remove() {
+	local name="$2"
+
+	if [[ -z "$name" ]]; then
+		echo "Usage: tsess remove <name>"
+		tsess_help
+		return 1
+	fi
+
+	sed -i '' "/^$name	/d" "$SESSION_FILE"
+	echo "Session '$name' removed from '$SESSION_FILE'"
+}
+
+tsess_attach() {
 	local selected name dir
-	SESSION_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/tmux-session/sessions"
 
 	[ -r "$SESSION_FILE" ] || { echo "Cannot read: $SESSION_FILE"; exit 1; }
 
@@ -10,6 +65,11 @@ tmux-session() {
 
 	name=$(echo $selected | awk '{print $1}')
 	dir=$(echo $selected | awk '{print $2}')
+
+	if [[ -z "$name" || -z "$dir" ]]; then
+		echo "No session selected"
+		return 1
+	fi
 
 	dir=${~dir}
 	dir=${dir:A}
@@ -21,3 +81,11 @@ tmux-session() {
 	fi
 }
 
+tsess_help() {
+	echo "Usage: tsess <command>"
+	echo "Commands:"
+	echo "  add <name> <dir>	Add a new session"
+	echo "  remove <name>		Remove a session"
+	echo "  attach				Attach to a session"
+	echo "  help				Show this help message"
+}
