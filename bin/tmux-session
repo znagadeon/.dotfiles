@@ -40,6 +40,7 @@ tsess_add() {
 
 	dir=${~dir}
 	dir=${dir:A}
+	dir="~${dir#$HOME}"
 
 	echo "$name	$dir" >> "$SESSION_FILE"
 	echo "Session '$name' added to '$SESSION_FILE'"
