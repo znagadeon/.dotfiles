@@ -1,16 +1,17 @@
-# vim: set ft=zsh :
+#!/bin/sh
+# vim: set ft=sh :
 
 tsess_dir() {
 	echo "${XDG_CONFIG_HOME:-$HOME/.config}/tsess/sessions"
 }
 
 tsess() {
-	local command="$1"
+	command="$1"
 
 	case $command in
 		init)
-			mkdir -p $(dirname $(tsess_dir))
-			touch $(tsess_dir)
+			mkdir -p "$(dirname "$(tsess_dir)")"
+			touch "$(tsess_dir)"
 			;;
 		add)
 			tsess_add "$@"
@@ -31,17 +32,17 @@ tsess() {
 }
 
 tsess_add() {
-	local name="$2"
-	local dir="$3"
+	name="$2"
+	dir="$3"
 
-	if [[ -z "$name" || -z "$dir" ]]; then
+	if [ -z "$name" ] || [ -z "$dir" ]; then
 		echo "Usage: tsess add <name> <dir>"
 		tsess_help
 		return 1
 	fi
 
-	dir=${~dir}
-	dir=${dir:A}
+	eval dir="$dir"
+	dir="$(cd "$dir" && pwd -P)"
 	dir="~${dir#$HOME}"
 
 	echo "$name	$dir" >> "$(tsess_dir)"
@@ -49,9 +50,9 @@ tsess_add() {
 }
 
 tsess_remove() {
-	local name="$2"
+	name="$2"
 
-	if [[ -z "$name" ]]; then
+	if [ -z "$name" ]; then
 		echo "Usage: tsess remove <name>"
 		tsess_help
 		return 1
@@ -62,35 +63,34 @@ tsess_remove() {
 }
 
 tsess_attach() {
-	local selected name dir
-	local command="$1"
+	command="$1"
 
-	if [[ -z "$command" ]]; then
+	if [ -z "$command" ]; then
 		selected=$(
-			column -t -s $'\t' "$(tsess_dir)" 2>/dev/null | \
+			column -t -s '	' "$(tsess_dir)" 2>/dev/null | \
 			fzf \
 				--prompt="tsess > " \
 				--layout reverse \
-				--height 40% \
+				--height 40%
 		)
-		name=$(echo $selected | awk '{print $1}')
-	elif [[ "$command" == "attach" ]]; then
+		name=$(echo "$selected" | awk '{print $1}')
+	elif [ "$command" = "attach" ]; then
 		name="$2"
 	else
 		name="$1"
-	fi	
+	fi
 
 	dir=$(grep "^$name	" "$(tsess_dir)" | awk '{print $2}')
 
-	if [[ -z "$name" || -z "$dir" ]]; then
+	if [ -z "$name" ] || [ -z "$dir" ]; then
 		echo "No session selected"
 		return 1
 	fi
 
-	dir=${~dir}
-	dir=${dir:A}
+	eval dir="$dir"
+	dir="$(cd "$dir" && pwd -P)"
 
-	if tmux has-session -t $name 2>/dev/null; then
+	if tmux has-session -t "$name" 2>/dev/null; then
 		tmux attach -t "$name"
 	else
 		tmux new -s "$name" -c "$dir"
@@ -105,7 +105,7 @@ tsess_help() {
 		echo "  remove <name>	Remove a session"
 		echo "  attach <name>	Attach to a session"
 		echo "  help	Show this help message"
-	} | column -t -s $'\t'
+	} | column -t -s '	'
 }
 
-alias ts='tsess'
+tsess "$@"
