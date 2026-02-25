@@ -1,8 +1,0 @@
-#!/bin/sh
-# vim: set ft=sh :
-
-now() {
-    date "+%Y-%m-%d %H:%M:%S" | pbcopy
-}
-
-now
