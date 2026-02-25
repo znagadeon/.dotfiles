@@ -22,6 +22,12 @@ tsess() {
 		""|attach)
 			tsess_attach "$@"
 			;;
+		detach)
+			tmux detach
+			;;
+		list|ls)
+			tmux ls
+			;;
 		help)
 			tsess_help
 			;;
